@@ -1,0 +1,211 @@
+{
+  "name": "My workflow 3",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "resume-upload",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -320,
+        0
+      ],
+      "id": "7349a84f-0d41-457a-b272-cd3d7db0d6ad",
+      "name": "Webhook",
+      "webhookId": "64bb79fd-37ab-45b2-b2d0-0fa4f0e034ad"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        -112,
+        0
+      ],
+      "id": "51baccef-0aba-4e0f-9e02-2e101af567c3",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5",
+          "mode": "list",
+          "cachedResultName": "GPT-5"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=You are an HR system.\n\nAnalyze this resume and compare with job requirements.\n\nReturn:\n1. Match percentage\n2. Missing skills\n3. Strengths\n4. Final decision\n\nResume:\n{{$json[\"text\"]}}\n\nJob Requirements:\nPython, AI, Machine Learning, APIs"
+            },
+            {
+              "content": "=You are an HR system.\n\nAnalyze this resume and compare with job requirements.\n\nReturn:\n1. Match percentage\n2. Missing skills\n3. Strengths\n4. Final decision\n\nResume:\n{{$json[\"text\"]}}\n\nJob Requirements:\nPython, AI, Machine Learning, APIs"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        48,
+        0
+      ],
+      "id": "7b401ce0-52dc-4370-bed1-887a594e1aac",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "578d4463-b902-4cfb-907f-44636c2d3c31",
+              "name": "result",
+              "value": "={{ $json[\"output\"][0][\"content\"][0]\n[\"text\"] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        400,
+        0
+      ],
+      "id": "4c3d1ed8-990d-4320-8e29-8e18916a26b6",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1pP6-klUVX3NKz3WCAYsfIoEXI1113dSr9sKHKHFujfU",
+          "mode": "list",
+          "cachedResultName": "test",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1pP6-klUVX3NKz3WCAYsfIoEXI1113dSr9sKHKHFujfU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1pP6-klUVX3NKz3WCAYsfIoEXI1113dSr9sKHKHFujfU/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Result": "={{ $json[\"result\"] }}"
+          },
+          "matchingColumns": [
+            "Result"
+          ],
+          "schema": [
+            {
+              "id": "Result",
+              "displayName": "Result",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        608,
+        0
+      ],
+      "id": "62c2aadf-a29b-45c4-8dd2-7dbcf91edb32",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5lFneaoeETQYgVHc",
+          "name": "Google Sheets account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "26bb15ae-432d-412e-8f3a-734b101c7b02",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c89deaa463e767187b28b1497574d5edfe71e0d2510311c8fa1833d1efe970bc"
+  },
+  "id": "MVODZqdx9AZx4deJ",
+  "tags": []
+}
